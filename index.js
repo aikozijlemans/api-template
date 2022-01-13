@@ -18,7 +18,7 @@ app.use(express.urlencoded({ extended: true }));
 const db = require("./app/models");
 const Role = db.role;
 
-db.mongoose.connect(`mongodb://admin:6b9gv3lI4lLxMkCIlw8y0qx7GlNPxRLdNREZBLmd2ONhJIoeOG6QlBBaOvj@192.168.2.11:27017/testapi?authSource=admin&readPreference=primary&appname=Bot&ssl=false`)
+db.mongoose.connect(``)
     .then(() => {
         console.log("Successfully connect to MongoDB.");
         initial();
