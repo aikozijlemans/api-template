@@ -1,30 +1,25 @@
-const autoIncrementModelID = require('./counterModel');
 module.exports = mongoose => {
-    const schema = mongoose.Schema(
+    var schema = mongoose.Schema(
         {
-            uuid: { type: Number, unique: true, min: 1 },
-            version: String,
-            name: String,
+            title: String,
             description: String,
-            main:{
-                title: String,
-                icon16: String,
-                icon32: String,
-                touchIcon: String,
-                manifest: String,
-                maskIcon: String,
-            }
+            published: Boolean,
+            name: String,
+            version: String,
+            webTitle: String,
+            icon16: String,
+            icon32: String,
+            touchIcon: String,
+            manifest: String,
+            maskIcon: String,
         },
-        {timestamps: true}
+        { timestamps: true }
     );
 
-    schema.pre('save', function (next) {
-        if (!this.isNew) {
-            next();
-            return;
-        }
-
-        autoIncrementModelID('activities', this, next);
+    schema.method("toJSON", function() {
+        const { __v, _id, ...object } = this.toObject();
+        object.id = _id;
+        return object;
     });
 
     return mongoose.model("site", schema);

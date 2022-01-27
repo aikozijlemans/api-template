@@ -1,48 +1,47 @@
 const db = require("../models");
 const Site = db.sites;
 
-// Create and Save a new Site
+// Create and Save a new Tutorial
 exports.create = (req, res) => {
     // Validate request
-    if (!req.body.name) {
+    if (!req.body.title) {
         res.status(400).send({ message: "Content can not be empty!" });
         return;
     }
 
-    // Create a Site
-    const site = new Site({
-        uuid: req.body.uuid,
-        version: req.body.version,
-        name: req.body.name,
+    // Create a Tutorial
+    const tutorial = new Site({
+        title: req.body.title,
         description: req.body.description,
-        main:{
-            title: req.body.main.title,
-            icon16: req.body.main.icon16,
-            icon32: req.body.main.icon32,
-            touchIcon: req.body.main.touchIcon,
-            manifest: req.body.main.manifest,
-            maskIcon: req.body.main.maskIcon,
-        }
+        published: req.body.published ? req.body.published : false,
+        name: req.body.name,
+        version: req.body.version,
+        webTitle: req.body.webTitle,
+        icon16: req.body.icon16,
+        icon32: req.body.icon32,
+        touchIcon: req.body.touchIcon,
+        manifest: req.body.manifest,
+        maskIcon: req.body.maskIcon,
     });
 
-    // Save Site in the database
-    site
-        .save(site)
+    // Save Tutorial in the database
+    tutorial
+        .save(tutorial)
         .then(data => {
             res.send(data);
         })
         .catch(err => {
             res.status(500).send({
                 message:
-                    err.message || "Some error occurred while creating the site."
+                    err.message || "Some error occurred while creating the Tutorial."
             });
         });
 };
 
-// Retrieve all Site from the database.
+// Retrieve all Tutorials from the database.
 exports.findAll = (req, res) => {
-    const uuid = req.query.uuid;
-    const condition = res.body
+    const title = req.query.title;
+    var condition = title ? { title: { $regex: new RegExp(title), $options: "i" } } : {};
 
     Site.find(condition)
         .then(data => {
@@ -56,41 +55,24 @@ exports.findAll = (req, res) => {
         });
 };
 
-// Find a single Site with an uuid
-exports.find = (req, res) => {
-    var response = [];
-    console.log(req.query)
+// Find a single Tutorial with an id
+exports.findOne = (req, res) => {
+    const id = req.params.id;
 
-    // this would usually adjust your database query
-    if(typeof req.query.uuid != 'undefined'){
-        sites.filter(function(site){
-            if(site.uuid.toInt() === req.query.uuid){
-                response.push(site);
-            }
+    Site.findById(id)
+        .then(data => {
+            if (!data)
+                res.status(404).send({ message: "Not found Tutorial with id " + id });
+            else res.send(data);
+        })
+        .catch(err => {
+            res
+                .status(500)
+                .send({ message: "Error retrieving Tutorial with id=" + id });
         });
-    }
-
-    // this would usually adjust your database query
-    if(typeof req.query.location != 'undefined'){
-        sites.filter(function(site){
-            if(site.location === req.query.location){
-                response.push(site);
-            }
-        });
-    }
-
-    // de-duplication:
-    response = _.uniqBy(response, 'uuid');
-
-    // in case no filtering has been applied, respond with all sites
-    if(Object.keys(req.query).length === 0){
-        response = sites;
-    }
-
-    res.json(response);
 };
 
-// Update a Site by the uuid in the request
+// Update a Tutorial by the id in the request
 exports.update = (req, res) => {
     if (!req.body) {
         return res.status(400).send({
@@ -98,42 +80,72 @@ exports.update = (req, res) => {
         });
     }
 
-    const uuid = req.params.uuid;
+    const id = req.params.id;
 
-    Site.findOne(uuid, req.body, { useFindAndModify: false })
+    Site.findByIdAndUpdate(id, req.body, { useFindAndModify: false })
         .then(data => {
             if (!data) {
                 res.status(404).send({
-                    message: `Cannot update site with uuid=${uuid}. Maybe Site was not found!`
+                    message: `Cannot update Tutorial with id=${id}. Maybe Tutorial was not found!`
                 });
-            } else res.send({ message: "site was updated successfully." });
+            } else res.send({ message: "Tutorial was updated successfully." });
         })
         .catch(err => {
             res.status(500).send({
-                message: "Error updating Tutorial with uuid=" + uuid
+                message: "Error updating Tutorial with id=" + id
             });
         });
 };
 
-// Delete a Site with the specified uuid in the request
+// Delete a Tutorial with the specified id in the request
 exports.delete = (req, res) => {
-    const uuid = req.params.uuid;
+    const id = req.params.id;
 
-    Site.findByuuidAndRemove(uuid, { useFindAndModify: false })
+    Site.findByIdAndRemove(id, { useFindAndModify: false })
         .then(data => {
             if (!data) {
                 res.status(404).send({
-                    message: `Cannot delete site with uuid=${uuid}. Maybe site was not found!`
+                    message: `Cannot delete Tutorial with id=${id}. Maybe Tutorial was not found!`
                 });
             } else {
                 res.send({
-                    message: "Site was deleted successfully!"
+                    message: "Tutorial was deleted successfully!"
                 });
             }
         })
         .catch(err => {
             res.status(500).send({
-                message: "Could not delete site with uuid=" + uuid
+                message: "Could not delete Tutorial with id=" + id
+            });
+        });
+};
+
+// Delete all Tutorials from the database.
+exports.deleteAll = (req, res) => {
+    Site.deleteMany({})
+        .then(data => {
+            res.send({
+                message: `${data.deletedCount} Tutorials were deleted successfully!`
+            });
+        })
+        .catch(err => {
+            res.status(500).send({
+                message:
+                    err.message || "Some error occurred while removing all tutorials."
+            });
+        });
+};
+
+// Find all published Tutorials
+exports.findAllPublished = (req, res) => {
+    Site.find({ published: true })
+        .then(data => {
+            res.send(data);
+        })
+        .catch(err => {
+            res.status(500).send({
+                message:
+                    err.message || "Some error occurred while retrieving tutorials."
             });
         });
 };
