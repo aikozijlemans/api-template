@@ -5,7 +5,7 @@ const dotenv = require('dotenv').config()
 const app = express();
 
 const corsOptions = {
-    origin: ""
+    origin: "*"
 };
 
 app.use(cors(corsOptions));

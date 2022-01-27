@@ -1,5 +1,5 @@
 const db = require("../models");
-const Site = db.sites;
+const Site = db.Site;
 
 // Create and Save a new Tutorial
 exports.create = (req, res) => {
@@ -14,14 +14,18 @@ exports.create = (req, res) => {
         title: req.body.title,
         description: req.body.description,
         published: req.body.published ? req.body.published : false,
-        name: req.body.name,
-        version: req.body.version,
-        webTitle: req.body.webTitle,
-        icon16: req.body.icon16,
-        icon32: req.body.icon32,
-        touchIcon: req.body.touchIcon,
-        manifest: req.body.manifest,
-        maskIcon: req.body.maskIcon,
+        website: {
+            name: req.body.name,
+            version: req.body.version,
+            webTitle: req.body.webTitle,
+        },
+        assets: {
+            icon16: req.body.icon16,
+            icon32: req.body.icon32,
+            touchIcon: req.body.touchIcon,
+            manifest: req.body.manifest,
+            maskIcon: req.body.maskIcon,
+        }
     });
 
     // Save Tutorial in the database

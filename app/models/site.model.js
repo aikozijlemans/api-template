@@ -1,26 +1,23 @@
-module.exports = mongoose => {
-    var schema = mongoose.Schema(
-        {
-            title: String,
-            description: String,
-            published: Boolean,
-            name: String,
-            version: String,
-            webTitle: String,
-            icon16: String,
-            icon32: String,
-            touchIcon: String,
-            manifest: String,
-            maskIcon: String,
+const mongoose = require("mongoose");
+const Site = mongoose.model(
+    "Site",
+    new mongoose.Schema({
+            title: { type: String },
+            description: { type: String },
+            published: { type: Boolean },
+            website: {
+                name: { type: String },
+                version: { type: String },
+                webTitle: { type: String },
+            },
+            assets: {
+                icon16: { type: String },
+                icon32: { type: String },
+                touchIcon: { type: String },
+                manifest: { type: String },
+                maskIcon: { type: String },
+            }
         },
-        { timestamps: true }
-    );
-
-    schema.method("toJSON", function() {
-        const { __v, _id, ...object } = this.toObject();
-        object.id = _id;
-        return object;
-    });
-
-    return mongoose.model("site", schema);
-};
+        {timestamps: true}
+    ));
+module.exports = Site;
